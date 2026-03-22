@@ -2,90 +2,105 @@
 
 <div align="center">
 
-将 PDF 翻译成结构尽量保真的中文 Markdown。  
-适合论文、课程讲义、技术文档、本地知识整理。
+<h3>Production-oriented PDF translation workflow for Chinese Markdown output.</h3>
 
-[快速开始](#快速开始) · [使用方式](#使用方式) · [配置说明](#配置说明) · [开发](#开发) · [路线图](#路线图)
+<p>
+  Upload a local PDF or submit a remote PDF URL, extract structured Markdown, preserve formulas as much as possible, and translate the content through a configurable LLM backend.
+</p>
+
+<p>
+  <a href="https://github.com/shizhenneko/translate_from_pdf/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-1f6b4f.svg" alt="License: MIT"></a>
+  <a href="https://github.com/shizhenneko/translate_from_pdf"><img src="https://img.shields.io/badge/python-3.8%2B-2b7a78.svg" alt="Python 3.8+"></a>
+  <a href="https://github.com/shizhenneko/translate_from_pdf"><img src="https://img.shields.io/badge/platform-WSL%20%7C%20Windows-3a506b.svg" alt="Platform"></a>
+  <a href="https://github.com/shizhenneko/translate_from_pdf"><img src="https://img.shields.io/badge/output-Markdown-4c956c.svg" alt="Output Markdown"></a>
+  <a href="https://github.com/shizhenneko/translate_from_pdf"><img src="https://img.shields.io/badge/LLM-configurable-355070.svg" alt="LLM configurable"></a>
+</p>
+
+<p>
+  <a href="#quick-start">Quick Start</a>
+  ·
+  <a href="#key-features">Key Features</a>
+  ·
+  <a href="#usage">Usage</a>
+  ·
+  <a href="#configuration">Configuration</a>
+  ·
+  <a href="#development">Development</a>
+</p>
 
 </div>
 
 ---
 
-## Overview
+## Introduction
 
-`translate_from_pdf` 是一个面向中文工作流的 PDF 翻译工具，提供 CLI 与本地 Web UI 两种入口。当前主链路为：
+`translate_from_pdf` is a lightweight but practical PDF translation project for Chinese-first workflows.
+
+Instead of treating PDF translation as a plain text conversion problem, it tries to keep the output usable:
+
+- keep Markdown structure whenever possible
+- preserve formulas, symbols, and math-like fragments
+- support both local file upload and remote PDF URL input
+- provide CLI and local Web UI entry points
+- isolate local runtime artifacts from Git by default
+
+Current pipeline:
 
 ```text
 PDF / URL
-  -> Marker 提取 Markdown
-  -> 分段与公式保护
-  -> 可配置 LLM 翻译
-  -> 中文 Markdown 输出
+  -> Marker extracts Markdown
+  -> segmentation and math protection
+  -> configurable LLM translation
+  -> Chinese Markdown output
 ```
 
-它不是“把 PDF 粗暴转成纯文本再翻译”的脚本，而是尽量保留结构、标题层级、公式、链接和 Markdown 语义，方便后续继续编辑、发布或纳入知识库。
+## Key Features
 
-仓库地址：`https://github.com/shizhenneko/translate_from_pdf.git`
-
-## Why This Project
-
-很多 PDF 翻译工具的问题并不在“能不能翻”，而在“翻完还能不能用”。
-
-这个项目的目标是：
-
-- 尽量保留 Markdown 结构，而不是导出一坨难以整理的文本
-- 对公式、符号密集段落做保护，避免 LLM 误改数学内容
-- 同时支持本地文件和远程 PDF URL
-- 让命令行用户和普通用户都能快速上手
-- 把运行缓存、任务目录、虚拟环境、`.env` 等本地文件隔离出版本库
-
-## Highlights
-
-| 能力 | 说明 |
+| Feature | Description |
 | --- | --- |
-| 本地 PDF 上传 | 直接上传单个 PDF，创建异步任务 |
-| URL 下载处理 | 输入 PDF 直链后自动下载并处理 |
-| Markdown 优先 | 输出中文 Markdown，便于继续编辑 |
-| 公式保护 | 尽量保留数学公式、符号与占位片段 |
-| LLM 可配置 | 使用 `LLM_*` 变量接入兼容接口 |
-| 本地 Web UI | 适合快速试用与演示 |
-| 离线调试模式 | 可使用 fake translator 做本地回归 |
-| Windows / WSL 启动脚本 | 降低环境启动门槛 |
+| Local PDF workflow | Upload or process a local PDF directly |
+| Remote URL workflow | Submit a public PDF URL and let the pipeline download it |
+| Markdown-first output | Produce Chinese Markdown for further editing and publishing |
+| Formula preservation | Protect math placeholders and symbol-heavy spans before translation |
+| Configurable LLM backend | Use `LLM_*` environment variables instead of provider-branded config |
+| Local Web UI | Good for demos, non-CLI users, and quick checks |
+| Offline testing mode | Run with a fake translator for regression tests and local debugging |
+| Windows / WSL launchers | Start quickly from common local environments |
 
-## Project Snapshot
+## Repository Structure
 
 ```text
 .
-├─ pdf_translate/           # 核心包：CLI、Web、管线、翻译器、OCR/解析适配
-├─ tests/                   # pytest 测试
-├─ docs/configuration.md    # 配置说明
-├─ pdf-url-to-zh-pdf.md     # 需求与方案文档
-├─ .env.example             # 环境变量模板
-├─ start_wsl.sh             # WSL 一键启动
-├─ start_windows.ps1        # Windows PowerShell 一键启动
-├─ start_windows.bat        # Windows CMD 一键启动
+├─ pdf_translate/           # core package: CLI, Web, pipeline, adapters, translators
+├─ tests/                   # pytest suite
+├─ docs/configuration.md    # configuration reference
+├─ pdf-url-to-zh-pdf.md     # planning / spec document
+├─ .env.example             # env template
+├─ start_wsl.sh             # one-click startup for WSL
+├─ start_windows.ps1        # one-click startup for PowerShell
+├─ start_windows.bat        # one-click startup for CMD
 └─ README.md
 ```
 
-当前仓库已经配置好 `.gitignore`，以下内容默认不会被误提交：
+Ignored by default through `.gitignore`:
 
 - `.env`
-- `.venv` / `.venv-windows` / 本地虚拟环境
+- virtual environments such as `.venv`, `.venv-windows`
 - `.cache/`
 - `.jobs/`
-- `pdfs/`
-- 生成的 PDF 与 Markdown 产物
+- generated outputs under `pdfs/`
+- local PDF and translated Markdown artifacts in the repository root
 
-## 快速开始
+## Quick Start
 
-### 1. 克隆项目
+### Clone the repository
 
 ```bash
 git clone https://github.com/shizhenneko/translate_from_pdf.git
 cd translate_from_pdf
 ```
 
-### 2. 创建虚拟环境
+### Create a virtual environment
 
 macOS / Linux / WSL:
 
@@ -101,26 +116,26 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 ```
 
-### 3. 安装依赖
+### Install dependencies
 
 ```bash
 python -m pip install -U pip
 python -m pip install -e .[dev]
 ```
 
-如果你要跑完整 PDF 提取链路，建议额外安装：
+For the full PDF extraction path, install `marker-pdf` as well:
 
 ```bash
 python -m pip install marker-pdf
 ```
 
-### 4. 配置环境变量
+### Configure environment variables
 
 ```bash
 cp .env.example .env
 ```
 
-最小必填配置：
+Minimum required configuration for real online translation:
 
 ```dotenv
 LLM_API_KEY=your_api_key
@@ -128,55 +143,47 @@ LLM_BASE_URL=https://api.deepseek.com/v1
 LLM_MODEL=deepseek-chat
 ```
 
-### 5. 启动并验证
-
-命令行检查：
-
-```bash
-python -m pdf_translate --help
-```
-
-启动本地 Web UI：
+### Start the local Web UI
 
 ```bash
 python -m pdf_translate serve
 ```
 
-默认访问地址：
+Then open:
 
 ```text
 http://127.0.0.1:10001/
 ```
 
-## 使用方式
+## Usage
 
 ### CLI
 
-本地 PDF -> 中文 Markdown：
+Translate a local PDF into Chinese Markdown:
 
 ```bash
 python -m pdf_translate run --in /path/to/file.pdf
 ```
 
-指定输出路径：
+Specify an explicit output path:
 
 ```bash
 python -m pdf_translate run --in /path/to/file.pdf --out output/result.zh.md
 ```
 
-本地 Markdown -> 中文 Markdown：
+Translate a local Markdown file:
 
 ```bash
 python -m pdf_translate translate-md --in docs/source.md --out output/source.zh.md
 ```
 
-URL 模式：
+Process a remote PDF URL:
 
 ```bash
 python -m pdf_translate run --url https://example.com/file.pdf
 ```
 
-离线假翻译模式：
+Run in offline fake-translator mode:
 
 ```bash
 python -m pdf_translate run --in /path/to/file.pdf --use-fake-translator
@@ -185,25 +192,25 @@ python -m pdf_translate translate-md --in docs/source.md --use-fake-translator
 
 ### Web UI
 
-本地 Web UI 适合非命令行用户或快速演示，支持：
+The local Web UI supports:
 
-- 上传单个 PDF
-- 输入 PDF URL 自动下载
-- 异步任务状态轮询
-- 完成后下载中文 Markdown
+- uploading a single PDF
+- submitting a remote PDF URL
+- polling async job status
+- downloading the translated Markdown output
 
-相关接口：
+API endpoints:
 
 - `POST /api/jobs/pdf`
 - `POST /api/jobs/url`
 - `GET /api/jobs/<job_id>`
 - `GET /api/jobs/<job_id>/download/md`
 
-## 配置说明
+## Configuration
 
-完整配置见 [docs/configuration.md](docs/configuration.md)。
+Detailed configuration reference: [docs/configuration.md](docs/configuration.md)
 
-常用变量如下：
+Common variables:
 
 ```dotenv
 LLM_API_KEY=your_api_key
@@ -226,14 +233,14 @@ PDF_TRANSLATE_MARKDOWN_CHUNK_CHARS=4000
 PDF_TRANSLATE_SYMBOL_FIX_MODE=conservative
 ```
 
-说明：
+Notes:
 
-- 真实在线翻译模式下，`LLM_API_KEY`、`LLM_BASE_URL`、`LLM_MODEL` 必填
-- 当前实现通过 `openai` Python SDK 调用兼容接口，但配置命名已经去品牌化
-- 如果以后接入非 OpenAI-compatible 协议，再考虑引入 `LLM_PROVIDER`
-- `.env` 已被忽略，不会进入 Git
+- `LLM_API_KEY`, `LLM_BASE_URL`, and `LLM_MODEL` are required for real online translation
+- current implementation uses the `openai` Python SDK to talk to OpenAI-compatible endpoints
+- configuration names are provider-neutral and no longer tied to `OPENAI_*`
+- `.env` is ignored by Git
 
-## 系统依赖
+## System Requirements
 
 ### WSL / Ubuntu
 
@@ -245,10 +252,10 @@ sudo apt-get install -y poppler-utils fonts-wqy-zenhei
 ### Windows
 
 - Python `3.10+`
-- 可正常创建虚拟环境
-- 若需完整解析链路，请保证 `marker-pdf` 及其依赖可用
+- working virtual environment support
+- `marker-pdf` and its dependencies if you want the full extraction path
 
-## 一键启动
+## One-Click Startup
 
 ### WSL
 
@@ -256,7 +263,7 @@ sudo apt-get install -y poppler-utils fonts-wqy-zenhei
 bash ./start_wsl.sh
 ```
 
-自定义端口：
+Custom port:
 
 ```bash
 bash ./start_wsl.sh 10002
@@ -268,7 +275,7 @@ bash ./start_wsl.sh 10002
 .\start_windows.ps1
 ```
 
-自定义端口：
+Custom port:
 
 ```powershell
 .\start_windows.ps1 -Port 10002
@@ -280,13 +287,13 @@ bash ./start_wsl.sh 10002
 start_windows.bat
 ```
 
-说明：
+Notes:
 
-- `start_wsl.sh` 使用 `.venv`
-- `start_windows.ps1` 与 `start_windows.bat` 使用 `.venv-windows`
-- WSL 与 Windows 各自独立运行，不共享虚拟环境
+- `start_wsl.sh` uses `.venv`
+- `start_windows.ps1` and `start_windows.bat` use `.venv-windows`
+- WSL and Windows environments are intentionally kept separate
 
-## 输出结构
+## Output Layout
 
 ```text
 pdfs/
@@ -301,49 +308,48 @@ pdfs/
     source.md
 ```
 
-## 开发
+## Development
 
-运行默认离线测试：
+Run the default offline test suite:
 
 ```bash
 pytest -q -m "not e2e_live"
 ```
 
-仅检查 CLI 入口：
+Check the CLI entry:
 
 ```bash
 python -m pdf_translate --help
 ```
 
-检查输出文件前 60 行：
+Inspect the first 60 lines of generated output:
 
 ```bash
 head -n 60 <output>.zh.md
 ```
 
-开发约定：
+Development expectations:
 
-- 使用 `pytest`
-- 外部模型调用应被 mock，不依赖真实网络
-- 每次管线阶段调整都应补回归测试
-- 生成产物不要进入版本库
+- use `pytest`
+- mock external LLM/API calls in tests
+- add regression coverage for pipeline-stage changes
+- do not commit generated artifacts
 
 ## Design Notes
 
-- `Marker` 是当前主解析路径
-- 数学公式、变量名、符号密集内容优先透传保护
-- 表格、代码块、链接等内容尽量保留 Markdown 语义
-- Web UI 保持轻量，核心逻辑仍集中在 Python 管线层
+- `Marker` is the current primary extraction path
+- formulas, variables, and symbol-heavy fragments should be preserved whenever possible
+- tables, code blocks, and links should remain meaningful Markdown structures
+- the Web UI stays intentionally lightweight while the pipeline logic remains in Python
 
-## 路线图
+## Roadmap
 
-- 更细粒度的任务进度展示
-- 多文件批量处理
-- 双语对照输出
-- 更稳定的扫描件 OCR 回退策略
-- 更完整的历史任务与预览能力
+- finer-grained task progress visibility
+- batch processing for multiple PDFs
+- bilingual output mode
+- more stable OCR fallback behavior for scanned PDFs
+- richer history and preview capabilities
 
 ## License
 
-当前仓库尚未补充正式许可证文件。  
-如果你准备公开发布，建议尽快增加 `LICENSE`。
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
